@@ -1,0 +1,5 @@
+{
+  "name": "Make.com Blueprint Visualizer 4jamie",
+  "description": "An application to upload, visualize, and understand Make.com blueprint.json files. It uses AI to generate plain-English explanations of the workflow logic.",
+  "requestFramePermissions": []
+}

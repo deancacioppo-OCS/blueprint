@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: make-blueprint-executor
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        sync: false
+      - key: BASE_URL
+        sync: false

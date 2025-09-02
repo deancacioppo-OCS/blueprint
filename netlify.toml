@@ -1,0 +1,19 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+  VITE_BACKEND_URL = "https://your-backend-app.onrender.com"
+
+[context.deploy-preview.environment]
+  GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+  VITE_BACKEND_URL = "https://your-backend-app.onrender.com"
