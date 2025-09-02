@@ -111,7 +111,7 @@ const App: React.FC = () => {
                 )}
             </main>
              <footer className="text-center p-4 text-gray-600 mt-8">
-                <p>Built by a world-class senior frontend React engineer.</p>
+                <p>Built by a world-class senior frontend React engineer. 🚀 Auto-deployed from GitHub!</p>
             </footer>
         </div>
     );
