@@ -24,7 +24,7 @@ export interface WorkflowExecutionResult {
 
 export const executeModule = async (module: Module, inputData: any = {}): Promise<ExecutionResult> => {
   try {
-    const response = await fetch(`${BACKEND_URL}`/api/execute/module, {
+    const response = await fetch(${BACKEND_URL}/api/execute/module, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ module, inputData })
@@ -37,7 +37,7 @@ export const executeModule = async (module: Module, inputData: any = {}): Promis
 
 export const executeWorkflow = async (blueprint: Blueprint, inputData: any = {}): Promise<WorkflowExecutionResult> => {
   try {
-    const response = await fetch(`${BACKEND_URL}`/api/execute/workflow, {
+    const response = await fetch(${BACKEND_URL}/api/execute/workflow, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ blueprint, inputData })
@@ -56,7 +56,7 @@ export const executeWorkflow = async (blueprint: Blueprint, inputData: any = {})
 
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${BACKEND_URL}`/api/health);
+    const response = await fetch(${BACKEND_URL}/api/health);
     return response.ok;
   } catch (error) {
     return false;
