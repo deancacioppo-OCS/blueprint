@@ -11,9 +11,5 @@
   status = 200
 
 [context.production.environment]
-  GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
-  VITE_BACKEND_URL = "https://your-backend-app.onrender.com"
-
-[context.deploy-preview.environment]
-  GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
-  VITE_BACKEND_URL = "https://your-backend-app.onrender.com"
+  GEMINI_API_KEY = "AIzaSyBQuRgy-YTrzqE4PAcHGMva4TbUPLxO3Uo"
+  VITE_BACKEND_URL = "https://blueprint-pwbb.onrender.com"
