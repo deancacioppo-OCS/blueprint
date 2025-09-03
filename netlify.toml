@@ -9,7 +9,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
-[context.production.environment]
-  GEMINI_API_KEY = "AIzaSyBQuRgy-YTrzqE4PAcHGMva4TbUPLxO3Uo"
-  VITE_BACKEND_URL = "https://blueprint-pwbb.onrender.com"
