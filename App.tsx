@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { Blueprint, Module } from './types';
 import { FileUpload } from './components/FileUpload';
 import { WorkflowVisualizer } from './components/WorkflowVisualizer';
 import { ModuleDetails } from './components/ModuleDetails';
 import { GeminiExplanation } from './components/GeminiExplanation';
 import { explainBlueprint } from './services/geminiService';
+import { executeWorkflow, checkBackendHealth, type WorkflowExecutionResult } from './services/executionService';
 import { LogoIcon, SparklesIcon } from './components/icons';
 
 const App: React.FC = () => {
@@ -13,6 +14,9 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [explanation, setExplanation] = useState<string | null>(null);
     const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
+    const [workflowResult, setWorkflowResult] = useState<WorkflowExecutionResult | null>(null);
+    const [isExecutingWorkflow, setIsExecutingWorkflow] = useState(false);
+    const [backendHealthy, setBackendHealthy] = useState<boolean | null>(null);
 
     const handleFileUpload = (content: string) => {
         try {
@@ -23,6 +27,7 @@ const App: React.FC = () => {
                 setError(null);
                 setSelectedModule(null); // Reset selection on new upload
                 setExplanation(null); // Reset explanation
+                setWorkflowResult(null); // Reset workflow result
             } else {
                 throw new Error("Invalid blueprint.json format. Missing 'name' or 'flow' properties.");
             }
@@ -54,6 +59,34 @@ const App: React.FC = () => {
         }
     }, [blueprint]);
 
+    const handleExecuteWorkflow = useCallback(async () => {
+        if (!blueprint) return;
+        setIsExecutingWorkflow(true);
+        setWorkflowResult(null);
+        setError(null);
+        
+        try {
+            const result = await executeWorkflow(blueprint);
+            setWorkflowResult(result);
+        } catch (e) {
+            const err = e as Error;
+            setError(`Workflow Execution Failed: ${err.message}`);
+        } finally {
+            setIsExecutingWorkflow(false);
+        }
+    }, [blueprint]);
+
+    // Check backend health when blueprint changes
+    useEffect(() => {
+        const checkHealth = async () => {
+            const healthy = await checkBackendHealth();
+            setBackendHealthy(healthy);
+        };
+        if (blueprint) {
+            checkHealth();
+        }
+    }, [blueprint]);
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 font-sans">
             <header className="bg-gray-800 border-b border-gray-700 p-4">
@@ -81,14 +114,30 @@ const App: React.FC = () => {
                                 <p className="text-gray-400">Workflow visualization of your blueprint.</p>
                             </div>
                             <div className="flex flex-col items-end space-y-2">
-                                <button
-                                    onClick={handleGenerateExplanation}
-                                    disabled={isLoadingExplanation}
-                                    className="flex items-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                                >
-                                    <SparklesIcon />
-                                    <span className="ml-2">{isLoadingExplanation ? 'Generating...' : 'Explain with AI'}</span>
-                                </button>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={handleGenerateExplanation}
+                                        disabled={isLoadingExplanation}
+                                        className="flex items-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                                    >
+                                        <SparklesIcon />
+                                        <span className="ml-2">{isLoadingExplanation ? 'Generating...' : 'Explain with AI'}</span>
+                                    </button>
+                                    
+                                    <button
+                                        onClick={handleExecuteWorkflow}
+                                        disabled={isExecutingWorkflow || !backendHealthy}
+                                        className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                                    >
+                                        <span className="mr-2">▶️</span>
+                                        <span>{isExecutingWorkflow ? 'Executing...' : 'Execute Workflow'}</span>
+                                    </button>
+                                </div>
+                                
+                                {!backendHealthy && (
+                                    <p className="text-red-400 text-sm">⚠️ Backend unavailable</p>
+                                )}
+                                
                                 <FileUpload onFileUpload={handleFileUpload} isReconnect={true} />
                            </div>
                         </div>
@@ -96,6 +145,29 @@ const App: React.FC = () => {
                         {error && <p className="mb-4 text-red-400 bg-red-900/50 p-3 rounded-md">{error}</p>}
                         
                         <GeminiExplanation explanation={explanation} isLoading={isLoadingExplanation} />
+                        
+                        {workflowResult && (
+                            <div className="mb-8 bg-gray-800 p-6 rounded-lg border border-gray-700">
+                                <h4 className="font-semibold text-xl text-white mb-4">🔄 Workflow Execution Results</h4>
+                                <div className="space-y-3">
+                                    {workflowResult.results.map((result, index) => (
+                                        <div key={result.moduleId} className={`p-3 rounded border ${result.success ? 'bg-green-900/20 border-green-500' : 'bg-red-900/20 border-red-500'}`}>
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-semibold text-gray-200">
+                                                    {index + 1}. {result.moduleName}
+                                                </span>
+                                                <span className={`text-sm ${result.success ? 'text-green-400' : 'text-red-400'}`}>
+                                                    {result.success ? '✅ Success' : '❌ Failed'}
+                                                </span>
+                                            </div>
+                                            {result.error && (
+                                                <p className="text-red-300 text-sm mt-1">{result.error}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="mt-8 flex flex-col lg:flex-row gap-8">
                             <div className="lg:w-2/3 w-full">
