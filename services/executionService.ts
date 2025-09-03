@@ -1,6 +1,6 @@
 import type { Module, Blueprint } from '../types';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.BACKEND_URL || process.env.VITE_BACKEND_URL || 'https://blueprint-pwbb.onrender.com';
 
 export interface ExecutionResult {
   success: boolean;

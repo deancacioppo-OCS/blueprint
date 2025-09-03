@@ -4,9 +4,22 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[context.production.environment]
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
